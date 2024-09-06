@@ -30,6 +30,8 @@ import { categorias_ofertas_router } from "./routes/categorias_ofertas.routes.js
 import { subcategorias_productos_router } from "./routes/subcategorias_productos.routes.js";
 import { subcategorias_ofertas_router } from "./routes/subcategorias_ofertas.routes.js";
 import { productos_router } from "./routes/productos.routes.js";
+import { ofertas_router } from "./routes/ofertas.routes.js";
+import { medidas_router } from "./routes/medidas.routes.js";
 // creando la aplicacion express
 const app = express();
 app.use(express.json());
@@ -42,6 +44,8 @@ app.use("/api/cardelli/categorias_ofertas", categorias_ofertas_router.router);
 app.use("/api/cardelli/subcategorias_productos", subcategorias_productos_router.router);
 app.use("/api/cardelli/subcategorias_ofertas", subcategorias_ofertas_router.router);
 app.use("/api/cardelli/productos", productos_router.router);
+app.use("/api/cardelli/ofertas", ofertas_router.router);
+app.use("/api/cardelli/medidas", medidas_router.router);
 
 app.use(errorHandler)
 

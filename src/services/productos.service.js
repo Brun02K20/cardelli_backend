@@ -133,6 +133,19 @@ const deleteProducto = async (id) => {
             return { error: 'No existe un producto con ese id.' };
         }
 
+        await sequelize.models.Medidas_Productos.destroy({
+            where: {
+                ProductoId: id
+            }
+        });
+
+        await sequelize.models.Fotos_Productos.destroy({
+            where: {
+                idProducto: id
+            }
+        });
+        
+
         await sequelize.models.Productos.destroy({
             where: {
                 id: id
