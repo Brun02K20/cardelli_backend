@@ -1,5 +1,34 @@
 import { sequelize } from "../databases/databases.js";
 import { categorias_ofertas_services } from "./categorias_ofertas.service.js";
+import { fotos_ofertas_services } from "./fotos_ofertas.service.js";
+import { ofertas_services } from "./ofertas.service.js";
+
+import multer from "multer"; // para gestionar el archivo a subir a firebase
+
+// configurar firebase e inicializarlo
+// Importa las funciones necesarias de los SDKs que necesitas
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, listAll } from "firebase/storage";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB0Hb5XWfV1p9bId_zCd5GkAFyUztJqqwE",
+  authDomain: "cardelli-neumaticos.firebaseapp.com",
+  projectId: "cardelli-neumaticos",
+  storageBucket: "cardelli-neumaticos.appspot.com",
+  messagingSenderId: "999381533436",
+  appId: "1:999381533436:web:b343dcae581149babe0d79",
+  measurementId: "G-BWBQTHGR4X"
+};
+
+// Inicializa Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const storage = getStorage(app);
+
+// Configuración de multer
+const storageMulter = multer.memoryStorage();
+const upload = multer({ storage: storageMulter });
 
 // Crear una subcategoria
 // body = {nombre: "nombre de la subcategoria", idCategoriaOferta: 2}
@@ -43,6 +72,38 @@ const editSubCategoria = async (idSubCategoria, body) => {
 const deleteSubCategoria = async (idSubCategoria) => {
     const subCategoriaABorrar = await sequelize.models.SubCategorias_Ofertas.findByPk(idSubCategoria);
     if (!subCategoriaABorrar) return {error: "No existe esa subcategoria"}
+
+    const ofertas = await sequelize.models.Ofertas.findAll({
+        where: {
+            idSubCategoria: idSubCategoria
+        }
+    })
+
+    // si tiene ofertas asociadas borra las ofertas y las fotos asociadas
+    if (ofertas.length > 0) {
+        await Promise.all(ofertas.map(async (oferta) => {
+            // codigo para borrar los archivos de firebase cuando se borra una oferta
+            const fotos = await sequelize.models.Fotos_Ofertas.findAll({
+                where: {
+                    idOferta: oferta.id
+                }
+            })
+
+            if (fotos.length > 0) {
+                await Promise.all(fotos.map(async (foto) => {
+                    // Extraer la parte relevante de la URL
+                    const url = new URL(foto.url);
+                    const path = decodeURIComponent(url.pathname.split('/o/')[1].split('?')[0]);
+        
+                    const storageRef = ref(storage, path);
+                    await deleteObject(storageRef);
+                }));
+            }
+
+            await fotos_ofertas_services.delete_fotos_oferta(oferta.id);
+            await ofertas_services.deleteOferta(oferta.id);
+        }))
+    }
 
     await subCategoriaABorrar.destroy();
     return { message: "Subcategoria eliminada" };

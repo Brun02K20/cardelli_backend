@@ -1,4 +1,5 @@
 import { sequelize } from "../databases/databases.js";
+import { subcategorias_productos_services } from "./subcategorias_productos.service.js";
 
 // Crear una categoria
 // body = {nombre: "nombre de la categoria"}
@@ -36,6 +37,21 @@ const editCategoria = async (idCategoria, body) => {
 const deleteCategoria = async (idCategoria) => {
     const categoriaABorrar = await sequelize.models.Categorias_Productos.findByPk(idCategoria);
     if (!categoriaABorrar) return { error: "No existe esa categoria" };
+
+    const subcategorias = await sequelize.models.SubCategorias_Productos.findAll({
+        where: {
+            idCategoriaProducto: idCategoria
+        }
+    })
+
+    // si tiene subcategorias asociadas borra las subcategorias
+    if (subcategorias.length > 0) {
+        await Promise.all(subcategorias.map(async (subcategoria) => {
+            await subcategorias_productos_services.deleteSubCategoria(subcategoria.id);
+        }))
+    }
+
+
 
     await categoriaABorrar.destroy();
     return { message: "Categoria eliminada" };
