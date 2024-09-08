@@ -198,6 +198,16 @@ router.put("/:id", tokenExtractorMiddleware, upload.array('files', 3), async (re
   }
 })
 
+// todos pueden ver el detalle de una oferta
+router.get("/:id", async (req, res, next) => {
+  try {
+    const oferta = await ofertas_services.getOfertaById(req.params.id);
+    res.json(oferta);
+  } catch (error) {
+    next(error);
+  }
+})
+
 
 const ofertas_router = { router }
 export { ofertas_router }

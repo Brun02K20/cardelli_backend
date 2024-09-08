@@ -162,11 +162,43 @@ const deleteOferta = async (id) => {
     }
 }
 
+const getOfertaById = async (id) => {
+    try {
+        const oferta = await sequelize.models.Ofertas.findByPk(id, {
+            include: [
+                {
+                    model: sequelize.models.Fotos_Ofertas
+                },
+                {
+                    model: sequelize.models.Medidas,
+                    attributes: ['id', 'nombre'],
+                },
+                {
+                    model: sequelize.models.SubCategorias_Ofertas,
+                    include: {
+                        model: sequelize.models.Categorias_Ofertas
+                    }
+                }
+            ]
+        })
+
+        if (!oferta) {
+            return { error: 'No existe una oferta con ese id.' };
+        }
+    
+        return oferta.dataValues
+    } catch (error) {
+        console.log("error en getOfertaById: ", error);
+        return { error: 'Error al obtener la oferta.' };
+    }
+}
+
 const ofertas_services = {
     createOferta,
     getSeccionOfertas,
     updateOferta,
-    deleteOferta
+    deleteOferta,
+    getOfertaById
 }
 
 export { ofertas_services }

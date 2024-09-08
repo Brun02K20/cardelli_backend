@@ -199,6 +199,15 @@ router.put("/:id", tokenExtractorMiddleware, upload.array('files', 3), async (re
   }
 })
 
+// todos pueden ver detalle de un producto
+router.get("/:id", async (req, res, next) => {
+  try {
+    const producto = await productos_services.getProductoById(req.params.id);
+    res.json(producto);
+  } catch (error) {
+    next(error);
+  }
+})
 
 const productos_router = { router }
 export { productos_router }

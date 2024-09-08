@@ -160,11 +160,45 @@ const deleteProducto = async (id) => {
     }
 }
 
+const getProductoById = async (id) => {
+    try {
+        const producto = await sequelize.models.Productos.findByPk(id, {
+            include: [
+                {
+                    model: sequelize.models.Fotos_Productos
+                },
+                {
+                    model: sequelize.models.Medidas,
+                    attributes: ['id', 'nombre'],
+                },
+                {
+                    model: sequelize.models.SubCategorias_Productos,
+                    attributes: ['id', 'nombre'],
+                    include: {
+                        model: sequelize.models.Categorias_Productos,
+                        attributes: ['id', 'nombre']
+                    }
+                }
+            ]
+        });
+
+        if (!producto) {
+            return { error: 'No existe un producto con ese id.' };
+        }
+
+        return producto.dataValues;
+    } catch (error) {
+        console.log("ERROR AL OBTENER PRODUCTO POR ID: ", error);
+        return { error: 'Error al obtener el producto.' };
+    }
+}
+
 const productos_services = {
     createProducto,
     getSeccionProductos,
     deleteProducto,
-    updateProducto
+    updateProducto,
+    getProductoById
 }
 
 export { productos_services }
