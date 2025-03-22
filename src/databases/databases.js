@@ -17,10 +17,10 @@ import { FotosOfertasModel } from "../models/Fotos_Ofertas.js";
 const sequelize = new Sequelize({
     dialect: "mysql",
     dialectModule: mysql2, // necesario para produccion
-    host: "bnuuykyjffls4ngatosp-mysql.services.clever-cloud.com",
+    host: "byetp8a5x4u0wqcsqrsb-mysql.services.clever-cloud.com",
     username: "uljtd3txymydojd0",
     password: "0yosC9HZTyTzCLYaJe05",
-    database: "bnuuykyjffls4ngatosp"
+    database: "byetp8a5x4u0wqcsqrsb"
 });
 
 // definicion de los modelos de datos en el codigo
